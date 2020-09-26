@@ -15,9 +15,7 @@ export default function artistReducer(state = initialState, action) {
       return {
         ...state,
         status: "idle",
-        currentArtist: {
-          profile: action.data,
-        },
+        currentArtist: action.data,
       };
     }
     case "RECEIVE_ARTIST_ERROR": {

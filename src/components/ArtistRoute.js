@@ -11,6 +11,26 @@ import {
 
 import styled from "styled-components";
 
+function nFormatter(num, digits) {
+  var si = [
+    { value: 1, symbol: "" },
+    { value: 1e3, symbol: "k" },
+    { value: 1e6, symbol: "M" },
+    { value: 1e9, symbol: "G" },
+    { value: 1e12, symbol: "T" },
+    { value: 1e15, symbol: "P" },
+    { value: 1e18, symbol: "E" },
+  ];
+  var rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
+  var i;
+  for (i = si.length - 1; i > 0; i--) {
+    if (num >= si[i].value) {
+      break;
+    }
+  }
+  return (num / si[i].value).toFixed(digits).replace(rx, "$1") + si[i].symbol;
+}
+
 const ArtistRoute = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -35,17 +55,23 @@ const ArtistRoute = () => {
   }, [accessToken]);
 
   if (currentArtist) {
-    console.log("artistData.currentArtist: ", currentArtist.profile);
+    console.log("artistData.currentArtist: ", currentArtist);
   }
 
   return (
     <>
       {status == "idle" ? (
         <ArtistPage>
-          <ArtistImg src={currentArtist.profile.images[0].url} />
-          <ArtistName>{currentArtist.profile.name}</ArtistName>
+          <ArtistImg src={currentArtist.images[0].url} />
+          <ArtistName>{currentArtist.name}</ArtistName>
+          <ArtistFollowers>
+            <Followers>
+              {nFormatter(currentArtist.followers.total, 0)}
+            </Followers>{" "}
+            followers
+          </ArtistFollowers>
           <ArtistHeaderTag>Tags</ArtistHeaderTag>
-          {currentArtist.profile.genres.slice(0, 2).map((genre) => {
+          {currentArtist.genres.slice(0, 2).map((genre) => {
             return <ArtistGenres>{genre}</ArtistGenres>;
           })}
         </ArtistPage>
@@ -61,6 +87,12 @@ const ArtistRoute = () => {
     </>
   );
 };
+
+const ArtistFollowers = styled.div``;
+
+const Followers = styled.span`
+  font-weight: bold;
+`;
 
 const Spinner = styled(Loader)`
   position: absolute;
@@ -80,6 +112,7 @@ const ArtistPage = styled.div`
   flex-direction: column;
   position: relative;
   height: 100vh;
+  align-items: center;
 `;
 const ArtistImg = styled.img`
   height: 50%;
