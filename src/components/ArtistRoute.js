@@ -9,27 +9,9 @@ import {
   receiveArtistDataError,
 } from "../actions";
 
+import PlayButton from "./PlayButton";
 import styled from "styled-components";
-
-function nFormatter(num, digits) {
-  var si = [
-    { value: 1, symbol: "" },
-    { value: 1e3, symbol: "k" },
-    { value: 1e6, symbol: "M" },
-    { value: 1e9, symbol: "G" },
-    { value: 1e12, symbol: "T" },
-    { value: 1e15, symbol: "P" },
-    { value: 1e18, symbol: "E" },
-  ];
-  var rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
-  var i;
-  for (i = si.length - 1; i > 0; i--) {
-    if (num >= si[i].value) {
-      break;
-    }
-  }
-  return (num / si[i].value).toFixed(digits).replace(rx, "$1") + si[i].symbol;
-}
+import NFormatter from "./NFormatter";
 
 const ArtistRoute = () => {
   const { id } = useParams();
@@ -42,6 +24,9 @@ const ArtistRoute = () => {
 
   if (accessToken) {
     console.log("accessToken: ", accessToken);
+  }
+  if (artistData) {
+    console.log("artistData: ", artistData);
   }
 
   React.useEffect(() => {
@@ -66,14 +51,18 @@ const ArtistRoute = () => {
           <ArtistName>{currentArtist.name}</ArtistName>
           <ArtistFollowers>
             <Followers>
-              {nFormatter(currentArtist.followers.total, 0)}
+              {NFormatter(currentArtist.followers.total, 0)}{" "}
+              <FollowerLbl>Followers</FollowerLbl>
             </Followers>{" "}
-            followers
           </ArtistFollowers>
-          <ArtistHeaderTag>Tags</ArtistHeaderTag>
-          {currentArtist.genres.slice(0, 2).map((genre) => {
-            return <ArtistGenres>{genre}</ArtistGenres>;
-          })}
+          <ArtistTag>
+            <ArtistHeaderTag>Tags</ArtistHeaderTag>
+            <SimilarArtistGenres>
+              {currentArtist.genres.slice(0, 2).map((genre) => {
+                return <ArtistGenres>{genre}</ArtistGenres>;
+              })}
+            </SimilarArtistGenres>
+          </ArtistTag>
         </ArtistPage>
       ) : (
         <Spinner
@@ -88,10 +77,36 @@ const ArtistRoute = () => {
   );
 };
 
-const ArtistFollowers = styled.div``;
+const ArtistTag = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+`;
+
+const SimilarArtistGenres = styled.div`
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  margin-top: 1%;
+`;
+
+const ArtistFollowers = styled.div`
+  margin-top: 5%;
+`;
 
 const Followers = styled.span`
-  font-weight: bold;
+  color: #ff4fd8;
+  font-family: Montserrat;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 17px;
+  text-transform: lowercase;
+  margin-top: 1%;
+`;
+const FollowerLbl = styled.span`
+  color: white;
 `;
 
 const Spinner = styled(Loader)`
@@ -101,11 +116,36 @@ const Spinner = styled(Loader)`
   transform: translate(-50%, -50%);
 `;
 
-const ArtistName = styled.h1``;
+const ArtistName = styled.div`
+  color: white;
+  margin-top: -15%;
+  font-family: Montserrat;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 48px;
+  line-height: 59px;
+`;
 
-const ArtistHeaderTag = styled.h2``;
+const ArtistHeaderTag = styled.div`
+  color: white;
+  font-family: Montserrat;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 21px;
+  line-height: 26px;
+  text-transform: lowercase;
+  margin-top: 5%;
+`;
 
-const ArtistGenres = styled.div``;
+const ArtistGenres = styled.span`
+  color: white;
+  border: 1px solid white;
+  flex: 1;
+  text-align: center;
+  background-color: #4b4b4b;
+  padding: 2%;
+  margin: 2%;
+`;
 
 const ArtistPage = styled.div`
   display: flex;
@@ -113,10 +153,14 @@ const ArtistPage = styled.div`
   position: relative;
   height: 100vh;
   align-items: center;
+  background-color: black;
+  width: 35%;
+  margin: 0 auto;
 `;
 const ArtistImg = styled.img`
   height: 50%;
-  width: 25%;
+  border-radius: 50%;
+  border: 1px solid white;
 `;
 
 export default ArtistRoute;
